@@ -195,3 +195,4 @@ this.createSelect2Ajax({
 	// some logic
 })
 ```
+
