@@ -104,3 +104,96 @@ afterViewInit: function () {
 	})
 },
 ```
+
+
+
+
+select2 ajax optimized select
+
+```javascript
+createSelect2Ajax({element, valueAlias, select2Config, queryConfig}){
+	let {id, text} = valueAlias
+	return $(element).select2({
+		allowClear: true,
+		language: 'ru',
+		placeholder: '',
+		selectionCssClass: 'form-control',
+		theme: 'bootstrap',
+		ajax: {
+			method: 'POST',
+			url: '/api/ds/utility/query/getpagevalues',
+			headers: {
+				"accept": "application/json, text/plain, */*",
+				"authorization": "Bearer " + localStorage.getItem('X-Auth-Token'),
+				"content-type": "application/json",
+			},
+			"mode": "cors",
+			"credentials": "include",
+			data: (params) => {
+
+				let getPageValuesParams = JSON.stringify(queryConfig(params))
+
+				return getPageValuesParams
+
+			} ,
+			processResults: (data, params) => {
+				let normalData = this.normalizeData(data, false)
+				let mappedData = normalData.map(el => ({
+					id: el[id],
+					text: el[text]
+				}))
+
+				return {
+					results: mappedData,
+					pagination: {
+						more: mappedData.length == 15
+					}
+				};
+
+
+			},
+		},
+		...select2Config
+	})
+}
+```
+
+Using example
+
+```javascript
+this.createSelect2Ajax({
+	element: '#search-admin-unit',
+	valueAlias: {
+		id: "Code",
+		text: "Name"
+	},
+	queryConfig: (params) => ({
+		queryCode: 'List_AdministrativeUnits',
+		filterColumns: [
+			{
+				key: "Name",
+				value: {
+					operation: 6,
+					not: false,
+					values: [
+						params.term || ''
+					]
+				}
+			}
+		],
+		limit: -1,
+		parameterValues: [],
+		pageNumber: params.page || 1,
+		sortColumns: [
+			{
+				key: "Name",
+				value: 0
+			}
+		]
+	}),
+	select2Config: {}
+})
+.on('select2:select', (e) => {
+	// some logic
+})
+```
