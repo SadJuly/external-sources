@@ -172,12 +172,10 @@ this.createSelect2Ajax({
 		filterColumns: [
 			{
 				key: "Name",
-				value: {
+					value: {
 					operation: 6,
 					not: false,
-					values: [
-						params.term || ''
-					]
+					values: [params.term || '']
 				}
 			}
 		],
